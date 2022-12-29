@@ -152,7 +152,7 @@ export interface GAMBannerAdProps extends Omit<BannerAdProps, 'size'> {
    * If enabled, the received ad's width will be resized using native SDK methods/constants.
    * {
    *    'android': `AdSize.FULL_WIDTH`,
-   *    'ios': `GADAdSizeFullWidthPortraitWithHeight` OR `GADAdSizeFullWidthLandscapeWithHeight`
+   *    'ios': `[[UIScreen mainScreen] bounds]`
    * }
    */
   fullWidthEnabled?: boolean;

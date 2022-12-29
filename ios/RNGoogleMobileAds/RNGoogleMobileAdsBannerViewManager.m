@@ -144,13 +144,7 @@
    GADAdSize adSize = bannerView.adSize;
     
   if (self.fullWidthEnabled) {
-    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    if (UIInterfaceOrientationIsPortrait(orientation)) {
-      adSize = GADAdSizeFullWidthPortraitWithHeight(adSize.size.height);
-    } else {
-      adSize = GADAdSizeFullWidthLandscapeWithHeight(adSize.size.height);
-    }
-
+    adSize.size.width = CGRectGetWidth([[UIScreen mainScreen] bounds]);
     [((GAMBannerView *)bannerView) resize: adSize];
   }
 
