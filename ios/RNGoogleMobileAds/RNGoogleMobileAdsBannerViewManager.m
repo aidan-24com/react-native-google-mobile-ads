@@ -28,6 +28,7 @@
 
 @property GADBannerView *banner;
 @property(nonatomic, assign) BOOL requested;
+@property(nonatomic, assign) BOOL fullWidthEnabled;
 
 @property(nonatomic, copy) NSArray *sizes;
 @property(nonatomic, copy) NSString *unitId;
@@ -96,6 +97,11 @@
   _propsChanged = true;
 }
 
+- (void)setFullWidthEnabled:(BOOL *)fullWidthEnabled {
+  _fullWidthEnabled = fullWidthEnabled;
+  _propsChanged = true;
+}
+
 - (void)requestAd {
 #ifndef __LP64__
   return;  // prevent crash on 32bit
@@ -135,10 +141,23 @@
 }
 
 - (void)bannerViewDidReceiveAd:(GADBannerView *)bannerView {
+   GADAdSize adSize = bannerView.adSize;
+    
+  if (self.fullWidthEnabled) {
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    if (UIInterfaceOrientationIsPortrait(orientation)) {
+      adSize = GADAdSizeFullWidthPortraitWithHeight(adSize.size.height);
+    } else {
+      adSize = GADAdSizeFullWidthLandscapeWithHeight(adSize.size.height);
+    }
+
+    [((GAMBannerView *)bannerView) resize: adSize];
+  }
+
   [self sendEvent:@"onAdLoaded"
           payload:@{
-            @"width" : @(bannerView.bounds.size.width),
-            @"height" : @(bannerView.bounds.size.height),
+            @"width" : @(adSize.size.width),
+            @"height" : @(adSize.size.height),
           }];
 }
 
@@ -203,6 +222,7 @@ RCT_EXPORT_METHOD(recordManualImpression : (nonnull NSNumber *)reactTag) {
       }];
 }
 
+RCT_EXPORT_VIEW_PROPERTY(fullWidthEnabled, BOOL);
 @synthesize bridge = _bridge;
 
 - (UIView *)view {

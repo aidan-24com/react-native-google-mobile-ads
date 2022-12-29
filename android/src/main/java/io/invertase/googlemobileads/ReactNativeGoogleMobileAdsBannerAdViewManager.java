@@ -61,6 +61,7 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
   private Boolean manualImpressionsEnabled;
   private boolean propsChanged;
   private boolean isFluid;
+  private Boolean fullWidthEnabled;
 
   @Nonnull
   @Override
@@ -141,6 +142,12 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
     propsChanged = true;
   }
 
+  @ReactProp(name = "fullWidthEnabled")
+  public void setFullWidthEnabled(ReactViewGroup reactViewGroup, Boolean value) {
+    this.fullWidthEnabled = value;
+    propsChanged = true;
+  }
+
   @Override
   public void onAfterUpdateTransaction(@NonNull ReactViewGroup reactViewGroup) {
     super.onAfterUpdateTransaction(reactViewGroup);
@@ -176,6 +183,10 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
               width = reactViewGroup.getWidth();
               height = reactViewGroup.getHeight();
             } else {
+              if (fullWidthEnabled) {
+                adView.setAdSizes(new AdSize(AdSize.FULL_WIDTH, adSize.getHeight()));
+                adSize = adView.getAdSize();
+              }
               left = adView.getLeft();
               top = adView.getTop();
               width = adSize.getWidthInPixels(reactViewGroup.getContext());
