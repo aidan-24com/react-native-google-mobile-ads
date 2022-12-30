@@ -210,7 +210,7 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
       });
       oldAdView.destroy();
     }
-    }
+    
     BaseAdView adView;
     if (ReactNativeGoogleMobileAdsCommon.isAdManagerUnit(unitId)) {
       adView = new AdManagerAdView(reactViewGroup.getContext());
