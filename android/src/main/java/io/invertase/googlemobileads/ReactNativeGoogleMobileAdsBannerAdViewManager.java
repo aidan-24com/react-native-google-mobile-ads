@@ -244,7 +244,7 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
             } else {
               if (Boolean.TRUE.equals(fullWidthEnabledMap.get(reactViewGroup.getId())) &&
                 adView instanceof AdManagerAdView) {
-                adSize = new AdSize(AdSize.FULL_WIDTH, adSize.getHeight())
+                adSize = new AdSize(AdSize.FULL_WIDTH, adSize.getHeight());
                 ((AdManagerAdView) adView).setAdSizes(adSize);
               }
               left = adView.getLeft();
