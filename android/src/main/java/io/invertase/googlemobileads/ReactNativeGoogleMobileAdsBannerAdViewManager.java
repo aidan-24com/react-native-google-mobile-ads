@@ -18,7 +18,9 @@ package io.invertase.googlemobileads;
  */
 
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
@@ -38,14 +40,17 @@ import com.google.android.gms.ads.BaseAdView;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.admanager.AdManagerAdView;
 import com.google.android.gms.ads.admanager.AppEventListener;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ReactNativeGoogleMobileAdsBannerAdViewManager
-    extends SimpleViewManager<ReactViewGroup> {
+  extends SimpleViewManager<ReactViewGroup> {
   private static final String REACT_CLASS = "RNGoogleMobileAdsBannerView";
   private final String EVENT_AD_LOADED = "onAdLoaded";
   private final String EVENT_AD_FAILED_TO_LOAD = "onAdFailedToLoad";
@@ -55,13 +60,13 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
   private final String EVENT_APP_EVENT = "onAppEvent";
   private final int COMMAND_ID_RECORD_MANUAL_IMPRESSION = 1;
 
-  private  final HashMap<Integer, AdRequest> requestMap = new HashMap<>();
-  private  final HashMap<Integer, List<AdSize>> sizesMap = new HashMap<>();
-  private  final HashMap<Integer, String> unitIdMap = new HashMap<>();
-  private  final HashMap<Integer, Boolean> manualImpressionsEnabledMap = new HashMap<>();
-  private  final HashMap<Integer, boolean> propsChangedMap = new HashMap<>();
-  private  final HashMap<Integer, boolean> isFluidMap = new HashMap<>();
-  private  final HashMap<Integer, Boolean> fullWidthEnabledMap = new HashMap<>();
+  private final HashMap<Integer, AdRequest> requestMap = new HashMap<>();
+  private final HashMap<Integer, List<AdSize>> sizesMap = new HashMap<>();
+  private final HashMap<Integer, String> unitIdMap = new HashMap<>();
+  private final HashMap<Integer, Boolean> manualImpressionsEnabledMap = new HashMap<>();
+  private final HashMap<Integer, Boolean> propsChangedMap = new HashMap<>();
+  private final HashMap<Integer, Boolean> isFluidMap = new HashMap<>();
+  private final HashMap<Integer, Boolean> fullWidthEnabledMap = new HashMap<>();
 
   @Nonnull
   @Override
@@ -78,7 +83,7 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
   @Override
   public void onDropViewInstance(@NonNull ReactViewGroup reactViewGroup) {
     super.onDropViewInstance(reactViewGroup);
-    
+
     requestMap.remove(reactViewGroup.getId());
     sizesMap.remove(reactViewGroup.getId());
     unitIdMap.remove(reactViewGroup.getId());
@@ -174,9 +179,6 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
     BaseAdView oldAdView = getAdView(reactViewGroup);
     if (oldAdView != null) {
       reactViewGroup.removeView(oldAdView);
-      oldAdView.setAppEventListener((name, info) -> {
-        // empty to clear previous listeners
-      });
       oldAdView.setAdListener(new AdListener() {
         @Override
         public void onAdClosed() {
@@ -208,11 +210,20 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
           super.onAdImpression();
         }
       });
+      if (oldAdView instanceof AdManagerAdView) {
+        ((AdManagerAdView) oldAdView).setAppEventListener(
+          new AppEventListener() {
+            @Override
+            public void onAppEvent(@NonNull String name, @Nullable String data) {
+              // empty to clear previous listeners
+            }
+          });
+      }
       oldAdView.destroy();
     }
-    
+
     BaseAdView adView;
-    if (ReactNativeGoogleMobileAdsCommon.isAdManagerUnit(unitId)) {
+    if (ReactNativeGoogleMobileAdsCommon.isAdManagerUnit(unitIdMap.get(reactViewGroup.getId()))) {
       adView = new AdManagerAdView(reactViewGroup.getContext());
     } else {
       adView = new AdView(reactViewGroup.getContext());
@@ -231,7 +242,9 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
               width = reactViewGroup.getWidth();
               height = reactViewGroup.getHeight();
             } else {
-              if (fullWidthEnabled) {
+              if (Boolean.TRUE.equals(fullWidthEnabledMap.get(reactViewGroup.getId())) &&
+                adSize != null &&
+                adView instanceof AdManagerAdView) {
                 ((AdManagerAdView) adView).setAdSizes(new AdSize(AdSize.FULL_WIDTH, adSize.getHeight()));
                 adSize = adView.getAdSize();
               }
@@ -291,7 +304,7 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
 
   private void requestAd(ReactViewGroup reactViewGroup) {
     String unitId = unitIdMap.get(reactViewGroup.getId());
-    AdSize sizes = sizesMap.get(reactViewGroup.getId());
+    List<AdSize> sizes = sizesMap.get(reactViewGroup.getId());
     AdRequest request = requestMap.get(reactViewGroup.getId());
     Boolean manualImpressionsEnabled = manualImpressionsEnabledMap.get(reactViewGroup.getId());
 
