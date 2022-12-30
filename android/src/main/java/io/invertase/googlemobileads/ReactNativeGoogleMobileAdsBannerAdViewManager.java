@@ -44,6 +44,7 @@ import com.google.android.gms.ads.admanager.AppEventListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -173,7 +174,7 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
     trackAdTimingEnabledMap.put(reactViewGroup.getId(), value);
     propsChangedMap.put(reactViewGroup.getId(), true);
   }
-  
+
   @Override
   public void onAfterUpdateTransaction(@NonNull ReactViewGroup reactViewGroup) {
     super.onAfterUpdateTransaction(reactViewGroup);
@@ -369,7 +370,7 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
 
     WritableMap payload = Arguments.createMap();
     payload.putString("name", "durationMS");
-    payload.putString("data", duration);
+    payload.putString("data", String.format(Locale.getDefault(), "%d", duration));
 
     return payload;
   }
