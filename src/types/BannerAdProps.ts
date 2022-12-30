@@ -149,11 +149,16 @@ export interface GAMBannerAdProps extends Omit<BannerAdProps, 'size'> {
   onAppEvent?: (appEvent: AppEvent) => void;
 
   /**
-   * If enabled, the received ad's width will be resized using native SDK methods/constants.
-   * {
-   *    'android': `AdSize.FULL_WIDTH`,
-   *    'ios': `[[UIScreen mainScreen] bounds]`
-   * }
+   * If enabled, the received ad's width will be resized using the following approaches:
+   * Android:
+   * ```java
+   * adSize = new AdSize(AdSize.FULL_WIDTH, adSize.getHeight());
+   * ```
+   * 
+   * iOS:
+   * ```objective-c
+   * adSize.size.width = CGRectGetWidth([[UIScreen mainScreen] bounds]);
+   * ```
    */
   fullWidthEnabled?: boolean;
 
