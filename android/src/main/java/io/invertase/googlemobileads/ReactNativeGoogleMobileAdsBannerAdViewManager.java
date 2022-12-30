@@ -67,6 +67,8 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
   private final HashMap<Integer, Boolean> propsChangedMap = new HashMap<>();
   private final HashMap<Integer, Boolean> isFluidMap = new HashMap<>();
   private final HashMap<Integer, Boolean> fullWidthEnabledMap = new HashMap<>();
+  private final HashMap<Integer, Boolean> trackAdTimingEnabledMap = new HashMap<>();
+  private final HashMap<Integer, Long> startTimeMap = new HashMap<>();
 
   @Nonnull
   @Override
@@ -166,6 +168,12 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
     propsChangedMap.put(reactViewGroup.getId(), true);
   }
 
+  @ReactProp(name = "trackAdTimingEnabled")
+  public void setTrackAdTimingEnabled(ReactViewGroup reactViewGroup, Boolean value) {
+    trackAdTimingEnabledMap.put(reactViewGroup.getId(), value);
+    propsChangedMap.put(reactViewGroup.getId(), true);
+  }
+  
   @Override
   public void onAfterUpdateTransaction(@NonNull ReactViewGroup reactViewGroup) {
     super.onAfterUpdateTransaction(reactViewGroup);
@@ -260,6 +268,9 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
             payload.putDouble("height", PixelUtil.toDIPFromPixel(height));
 
             sendEvent(reactViewGroup, EVENT_AD_LOADED, payload);
+            if (Boolean.TRUE.equals(trackAdTimingEnabledMap.get(reactViewGroup.getId()))) {
+              sendEvent(reactViewGroup, EVENT_APP_EVENT, makeDurationPayload(reactViewGroup));
+            }
           }
 
           @Override
@@ -267,6 +278,9 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
             int errorCode = loadAdError.getCode();
             WritableMap payload = ReactNativeGoogleMobileAdsCommon.errorCodeToMap(errorCode);
             sendEvent(reactViewGroup, EVENT_AD_FAILED_TO_LOAD, payload);
+            if (Boolean.TRUE.equals(trackAdTimingEnabledMap.get(reactViewGroup.getId()))) {
+              sendEvent(reactViewGroup, EVENT_APP_EVENT, makeDurationPayload(reactViewGroup));
+            }
           }
 
           @Override
@@ -330,6 +344,10 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
     }
 
     adView.loadAd(request);
+
+    if (Boolean.TRUE.equals(trackAdTimingEnabledMap.get(reactViewGroup.getId()))) {
+      startTimeMap.put(reactViewGroup.getId(), System.currentTimeMillis());
+    }
   }
 
   private void sendEvent(ReactViewGroup reactViewGroup, String type, WritableMap payload) {
@@ -343,5 +361,16 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
     ((ThemedReactContext) reactViewGroup.getContext())
         .getJSModule(RCTEventEmitter.class)
         .receiveEvent(reactViewGroup.getId(), "onNativeEvent", event);
+  }
+
+  private WritableMap makeDurationPayload(ReactViewGroup reactViewGroup) {
+    Long startTime = startTimeMap.get(reactViewGroup.getId());
+    int duration = startTime != null ? (int)(System.currentTimeMillis() - startTime) : -1;
+
+    WritableMap payload = Arguments.createMap();
+    payload.putString("name", "durationMS");
+    payload.putString("data", duration);
+
+    return payload;
   }
 }

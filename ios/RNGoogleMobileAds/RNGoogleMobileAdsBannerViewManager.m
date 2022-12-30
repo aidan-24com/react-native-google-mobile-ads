@@ -29,6 +29,8 @@
 @property GADBannerView *banner;
 @property(nonatomic, assign) BOOL requested;
 @property(nonatomic, assign) BOOL fullWidthEnabled;
+@property(nonatomic, assign) BOOL trackAdTimingEnabled;
+@property(nonatomic, assign) long startTimeMS;
 
 @property(nonatomic, copy) NSArray *sizes;
 @property(nonatomic, copy) NSString *unitId;
@@ -102,6 +104,11 @@
   _propsChanged = true;
 }
 
+- (void)setTrackAdTimingEnabled:(BOOL *)trackAdTimingEnabled {
+  _trackAdTimingEnabled = trackAdTimingEnabled;
+  _propsChanged = true;
+}
+
 - (void)requestAd {
 #ifndef __LP64__
   return;  // prevent crash on 32bit
@@ -122,6 +129,10 @@
             @"width" : @(_banner.bounds.size.width),
             @"height" : @(_banner.bounds.size.height),
           }];
+
+  if (trackAdTimingEnabled) {
+    _startTimeMS = (long long)([[NSDate date] timeIntervalSince1970] * 1000.0);
+  }
 }
 
 - (void)sendEvent:(NSString *)type payload:(NSDictionary *_Nullable)payload {
@@ -153,11 +164,19 @@
             @"width" : @(adSize.size.width),
             @"height" : @(adSize.size.height),
           }];
+
+  if (trackAdTimingEnabled) {
+    [self sendEvent:@"onAppEvent" payload: [self makeDurationPayload]];
+  }
 }
 
 - (void)bannerView:(GADBannerView *)bannerView didFailToReceiveAdWithError:(NSError *)error {
   NSDictionary *errorAndMessage = [RNGoogleMobileAdsCommon getCodeAndMessageFromAdError:error];
   [self sendEvent:@"onAdFailedToLoad" payload:errorAndMessage];
+  
+  if (trackAdTimingEnabled) {
+    [self sendEvent:@"onAppEvent" payload:[self makeDurationPayload]];
+  }
 }
 
 - (void)bannerViewWillPresentScreen:(GADBannerView *)bannerView {
@@ -186,6 +205,14 @@
   if ([_banner class] == [GAMBannerView class]) {
     [((GAMBannerView *)_banner) recordImpression];
   }
+}
+
+- (void)makeDurationPayload {
+  long long currentMS = (long long)([[NSDate date] timeIntervalSince1970] * 1000.0);
+  return @{
+            @"name" : "durationMS",
+            @"data" : @(currentMS - _startTimeMS),
+          };
 }
 
 @end
@@ -217,6 +244,8 @@ RCT_EXPORT_METHOD(recordManualImpression : (nonnull NSNumber *)reactTag) {
 }
 
 RCT_EXPORT_VIEW_PROPERTY(fullWidthEnabled, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(trackAdTimingEnabled, BOOL);
+
 @synthesize bridge = _bridge;
 
 - (UIView *)view {

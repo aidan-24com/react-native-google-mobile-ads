@@ -156,4 +156,10 @@ export interface GAMBannerAdProps extends Omit<BannerAdProps, 'size'> {
    * }
    */
   fullWidthEnabled?: boolean;
+
+  /**
+   * Whether to enable `AppEvent`s for tracking ad request duration. Handled 
+   * by the `onAppEvent` listener (if defined). The event `name` is 'durationMS'
+   */
+  trackAdTimingEnabled?: boolean;
 }

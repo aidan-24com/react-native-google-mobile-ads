@@ -52,6 +52,7 @@ export const BaseAd = React.forwardRef<GoogleMobileAdsBannerView, GAMBannerAdPro
     requestOptions,
     manualImpressionsEnabled,
     fullWidthEnabled,
+    trackAdTimingEnabled,
     ...props
   }, ref) => {
     const [dimensions, setDimensions] = useState<(number | string)[]>([0, 0]);
@@ -140,6 +141,7 @@ export const BaseAd = React.forwardRef<GoogleMobileAdsBannerView, GAMBannerAdPro
         manualImpressionsEnabled={!!manualImpressionsEnabled}
         onNativeEvent={onNativeEvent}
         fullWidthEnabled={fullWidthEnabled}
+        trackAdTimingEnabled={trackAdTimingEnabled}
       />
     );
   },
@@ -157,6 +159,7 @@ interface NativeBannerProps {
   manualImpressionsEnabled: boolean;
   onNativeEvent: (event: { nativeEvent: NativeEvent }) => void;
   fullWidthEnabled?: boolean;
+  trackAdTimingEnabled?: boolean;
 }
 
 const GoogleMobileAdsBannerView = requireNativeComponent<NativeBannerProps>(
