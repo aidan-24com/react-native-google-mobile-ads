@@ -169,7 +169,7 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
   @Override
   public void onAfterUpdateTransaction(@NonNull ReactViewGroup reactViewGroup) {
     super.onAfterUpdateTransaction(reactViewGroup);
-    if (propsChangedMap.get(reactViewGroup.getId())) {
+    if (Boolean.TRUE.equals(propsChangedMap.get(reactViewGroup.getId()))) {
       requestAd(reactViewGroup);
     }
     propsChangedMap.put(reactViewGroup.getId(), false);
@@ -235,7 +235,7 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
           public void onAdLoaded() {
             AdSize adSize = adView.getAdSize();
             int left, top, width, height;
-            if (isFluidMap.get(reactViewGroup.getId())) {
+            if (Boolean.TRUE.equals(isFluidMap.get(reactViewGroup.getId()))) {
               // TODO size=FLUID is still not working
               left = 0;
               top = 0;
@@ -243,10 +243,9 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
               height = reactViewGroup.getHeight();
             } else {
               if (Boolean.TRUE.equals(fullWidthEnabledMap.get(reactViewGroup.getId())) &&
-                adSize != null &&
                 adView instanceof AdManagerAdView) {
-                ((AdManagerAdView) adView).setAdSizes(new AdSize(AdSize.FULL_WIDTH, adSize.getHeight()));
-                adSize = adView.getAdSize();
+                adSize = new AdSize(AdSize.FULL_WIDTH, adSize.getHeight())
+                ((AdManagerAdView) adView).setAdSizes(adSize);
               }
               left = adView.getLeft();
               top = adView.getTop();
