@@ -99,12 +99,12 @@
   _propsChanged = true;
 }
 
-- (void)setFullWidthEnabled:(BOOL *)fullWidthEnabled {
+- (void)setFullWidthEnabled:(BOOL)fullWidthEnabled {
   _fullWidthEnabled = fullWidthEnabled;
   _propsChanged = true;
 }
 
-- (void)setTrackAdTimingEnabled:(BOOL *)trackAdTimingEnabled {
+- (void)setTrackAdTimingEnabled:(BOOL)trackAdTimingEnabled {
   _trackAdTimingEnabled = trackAdTimingEnabled;
   _propsChanged = true;
 }
@@ -130,7 +130,7 @@
             @"height" : @(_banner.bounds.size.height),
           }];
 
-  if (trackAdTimingEnabled) {
+  if (_trackAdTimingEnabled) {
     _startTimeMS = (long long)([[NSDate date] timeIntervalSince1970] * 1000.0);
   }
 }
@@ -165,7 +165,7 @@
             @"height" : @(adSize.size.height),
           }];
 
-  if (trackAdTimingEnabled) {
+  if (_trackAdTimingEnabled) {
     [self sendEvent:@"onAppEvent" payload: [self makeDurationPayload]];
   }
 }
@@ -174,7 +174,7 @@
   NSDictionary *errorAndMessage = [RNGoogleMobileAdsCommon getCodeAndMessageFromAdError:error];
   [self sendEvent:@"onAdFailedToLoad" payload:errorAndMessage];
   
-  if (trackAdTimingEnabled) {
+  if (_trackAdTimingEnabled) {
     [self sendEvent:@"onAppEvent" payload:[self makeDurationPayload]];
   }
 }
@@ -207,10 +207,10 @@
   }
 }
 
-- (void)makeDurationPayload {
+- makeDurationPayload {
   long long currentMS = (long long)([[NSDate date] timeIntervalSince1970] * 1000.0);
   return @{
-            @"name" : "durationMS",
+            @"name" : @"durationMS",
             @"data" : @(currentMS - _startTimeMS),
           };
 }
