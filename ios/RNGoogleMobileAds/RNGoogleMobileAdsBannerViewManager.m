@@ -154,7 +154,7 @@
 - (void)bannerViewDidReceiveAd:(GADBannerView *)bannerView {
    GADAdSize adSize = bannerView.adSize;
     
-  if (self.fullWidthEnabled) {
+  if (_fullWidthEnabled) {
     adSize.size.width = CGRectGetWidth([[UIScreen mainScreen] bounds]);
     [((GAMBannerView *)bannerView) resize: adSize];
   }
