@@ -61,6 +61,7 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
   private Boolean manualImpressionsEnabled;
   private boolean propsChanged;
   private boolean isFluid;
+  private final HashMap<Integer, Boolean> fullWidthEnabledMap = new HashMap<>();
 
   @Nonnull
   @Override
@@ -72,6 +73,19 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
   @Override
   public ReactViewGroup createViewInstance(@Nonnull ThemedReactContext themedReactContext) {
     return new ReactViewGroup(themedReactContext);
+  }
+
+  @Override
+  public void onDropViewInstance(@NonNull ReactViewGroup reactViewGroup) {
+    super.onDropViewInstance(reactViewGroup);
+
+    requestMap.remove(reactViewGroup.getId());
+    sizesMap.remove(reactViewGroup.getId());
+    unitIdMap.remove(reactViewGroup.getId());
+    manualImpressionsEnabledMap.remove(reactViewGroup.getId());
+    propsChangedMap.remove(reactViewGroup.getId());
+    isFluidMap.remove(reactViewGroup.getId());
+    fullWidthEnabledMap.remove(reactViewGroup.getId());
   }
 
   @Override
@@ -141,6 +155,12 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
     propsChanged = true;
   }
 
+  @ReactProp(name = "fullWidthEnabled")
+  public void setFullWidthEnabled(ReactViewGroup reactViewGroup, Boolean value) {
+    fullWidthEnabledMap.put(reactViewGroup.getId(), value);
+    propsChangedMap.put(reactViewGroup.getId(), true);
+  }
+
   @Override
   public void onAfterUpdateTransaction(@NonNull ReactViewGroup reactViewGroup) {
     super.onAfterUpdateTransaction(reactViewGroup);
@@ -176,6 +196,11 @@ public class ReactNativeGoogleMobileAdsBannerAdViewManager
               width = reactViewGroup.getWidth();
               height = reactViewGroup.getHeight();
             } else {
+              if (Boolean.TRUE.equals(fullWidthEnabledMap.get(reactViewGroup.getId()))
+                  && adView instanceof AdManagerAdView) {
+                adSize = new AdSize(AdSize.FULL_WIDTH, adSize.getHeight());
+                ((AdManagerAdView) adView).setAdSizes(adSize);
+              }
               left = adView.getLeft();
               top = adView.getTop();
               width = adSize.getWidthInPixels(reactViewGroup.getContext());

@@ -132,6 +132,7 @@ export const BaseAd = React.forwardRef<GoogleMobileAdsBannerView, GAMBannerAdPro
         request={validateAdRequestOptions(requestOptions)}
         manualImpressionsEnabled={!!manualImpressionsEnabled}
         onNativeEvent={onNativeEvent}
+        fullWidthEnabled={props.fullWidthEnabled}
       />
     );
   },
@@ -148,6 +149,7 @@ interface NativeBannerProps {
   request: RequestOptions;
   manualImpressionsEnabled: boolean;
   onNativeEvent: (event: { nativeEvent: NativeEvent }) => void;
+  fullWidthEnabled?: boolean;
 }
 
 const GoogleMobileAdsBannerView = requireNativeComponent<NativeBannerProps>(
